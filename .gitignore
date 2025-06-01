@@ -5,7 +5,7 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 yarn.lock
-
+aibit-server/node_modules/
 # Build outputs
 dist/
 build/
