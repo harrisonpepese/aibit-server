@@ -53,3 +53,12 @@ entidade que gerencia a movimentação dos personagens no mapa, incluindo movime
 
 ## Creature
 entidade que representa as criaturas do jogo, incluindo monstros e NPCs, com suas próprias habilidades e comportamentos.
+
+## Itens
+entidade que gerencia os itens do jogo, incluindo armas, armaduras e consumíveis, e suas interações com os personagens.
+
+## Events
+entidade que lida com eventos do jogo, como spawn de criaturas, mudanças no estado do mundo e interações entre personagens.
+
+## Chat
+entidade que gerencia o sistema de chat do jogo, permitindo comunicação entre jogadores e NPCs.
