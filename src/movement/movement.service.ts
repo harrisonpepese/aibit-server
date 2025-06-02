@@ -1,224 +1,282 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
+
+// Domain entities
+import { Movement } from './domain/entities/movement.entity';
+import { MovementEvent, MovementEventStatus, MovementEventType } from './domain/entities/movement-event.entity';
+
+// Repository
+import { MovementRepository } from './domain/repositories/movement.repository';
+import { MOVEMENT_REPOSITORY_TOKEN } from './domain/repositories/movement.repository.token';
+
+// DTOs
+import { ExecuteMovementDto } from './dto/execute-movement.dto';
+import { 
+  MovementResultResponseDto, 
+  MovementResponseDto,
+  MovementStatisticsResponseDto,
+  EntityPositionInfoResponseDto 
+} from './dto/movement-response.dto';
+
+// Use Cases
 import { ExecuteMovementUseCase } from './application/use-cases/execute-movement.use-case';
 import { GetMovementHistoryUseCase } from './application/use-cases/get-movement-history.use-case';
 import { GetMovementStatisticsUseCase } from './application/use-cases/get-movement-statistics.use-case';
 import { DeleteMovementUseCase } from './application/use-cases/delete-movement.use-case';
-import { ExecuteMovementDto } from './dto/execute-movement.dto';
-import {
-  MovementResultResponseDto,
-  MovementResponseDto,
-  MovementStatisticsResponseDto,
-  EntityPositionInfoResponseDto,
-  PositionResponseDto,
-  MovementSourceResponseDto
-} from './dto/movement-response.dto';
-import { Position as PositionVO } from './domain/value-objects/position.vo';
-import { MovementSpeed } from './domain/value-objects/movement-speed.vo';
-import { Movement, MovementSource, Position } from './domain/entities/movement.entity';
+
+// Event-Based Use Cases
+import { RequestMovementUseCase } from './application/use-cases/request-movement.use-case';
+import { TeleportEntityUseCase } from './application/use-cases/teleport-entity.use-case';
+import { CancelMovementUseCase } from './application/use-cases/cancel-movement.use-case';
+import { GetMovementStatusUseCase } from './application/use-cases/get-movement-status.use-case';
+
+// Infrastructure Services
+import { MovingEntitiesTrackingService } from './infrastructure/services/moving-entities-tracking.service';
 
 @Injectable()
 export class MovementService {
   constructor(
+    // Repository
+    @Inject(MOVEMENT_REPOSITORY_TOKEN)
+    private readonly movementRepository: MovementRepository,
+    
+    // Legacy Use Cases
     private readonly executeMovementUseCase: ExecuteMovementUseCase,
     private readonly getMovementHistoryUseCase: GetMovementHistoryUseCase,
     private readonly getMovementStatisticsUseCase: GetMovementStatisticsUseCase,
     private readonly deleteMovementUseCase: DeleteMovementUseCase,
+    
+    // Event-Based Use Cases
+    private readonly requestMovementUseCase: RequestMovementUseCase,
+    private readonly teleportEntityUseCase: TeleportEntityUseCase,
+    private readonly cancelMovementUseCase: CancelMovementUseCase,
+    private readonly getMovementStatusUseCase: GetMovementStatusUseCase,
+    
+    // Infrastructure Services
+    private readonly movingEntitiesTrackingService: MovingEntitiesTrackingService,
   ) {}
 
-  async executeMovement(dto: ExecuteMovementDto): Promise<MovementResultResponseDto> {
-    const fromPosition = new PositionVO(dto.fromPosition.x, dto.fromPosition.y, dto.fromPosition.z);
-    const toPosition = new PositionVO(dto.toPosition.x, dto.toPosition.y, dto.toPosition.z);
-    const speed = dto.speed ? new MovementSpeed(dto.speed) : undefined;
+  // Novos métodos baseados em eventos
 
-    const source: MovementSource = {
+  async requestMovement(dto: ExecuteMovementDto): Promise<any> {
+    const source: any = {
       entityId: dto.source.sourceId,
       entityName: dto.source.sourceName,
       entityType: dto.source.sourceType as 'character' | 'creature' | 'npc' | 'system',
     };
 
-    const result = await this.executeMovementUseCase.execute({
-      entityId: dto.entityId,
-      fromPosition: this.mapPositionVOToPosition(fromPosition),
-      toPosition: this.mapPositionVOToPosition(toPosition),
-      movementType: dto.movementType,
+    const event = await this.requestMovementUseCase.execute(
+      dto.entityId,
+      dto.fromPosition,
+      dto.toPosition,
+      dto.movementType,
       source,
-      speed: speed?.getValue(),
-      validateMovement: dto.validateMovement,
-    });
+      dto.speed,
+    );
 
     return {
-      movement: result.movement ? this.mapMovementToResponseDto(result.movement) : null,
-      status: result.status,
-      actualPosition: this.mapPositionToResponseDto(result.actualPosition),
-      staminaCost: result.staminaCost,
-      duration: result.duration,
-      collisions: result.collisions,
+      eventId: event.getId(),
+      entityId: dto.entityId,
+      status: 'pending',
+      message: 'Movimento agendado para processamento',
+    };
+  }
+
+  async teleportEntity(
+    entityId: string,
+    targetPosition: { x: number; y: number; z: number },
+    sourceEntityId: string,
+    sourceName?: string,
+  ): Promise<any> {
+    const source: any = {
+      entityId: sourceEntityId,
+      entityName: sourceName || 'Sistema',
+      entityType: 'system',
+    };
+
+    const event = await this.teleportEntityUseCase.execute(
+      entityId,
+      targetPosition,
+      source
+    );
+
+    return {
+      eventId: event.getId(),
+      entityId: entityId,
+      targetPosition,
+      status: 'completed',
+      message: 'Teleporte realizado com sucesso',
+    };
+  }
+
+  async cancelMovement(
+    entityId: string,
+    reason?: string
+  ): Promise<any> {
+    const result = await this.cancelMovementUseCase.execute(entityId, reason);
+    
+    return {
+      entityId,
+      status: result ? 'cancelled' : 'not_found',
+      message: result 
+        ? `Movimento cancelado com sucesso: ${reason || 'Sem motivo especificado'}`
+        : 'Nenhum movimento ativo encontrado para esta entidade',
+    };
+  }
+
+  async getMovementStatus(entityId: string): Promise<any> {
+    const status = await this.getMovementStatusUseCase.execute(entityId);
+    
+    if (!status) {
+      return {
+        entityId,
+        isMoving: false,
+        message: 'Entidade não está em movimento',
+      };
+    }
+    
+    return {
+      entityId,
+      isMoving: status.isMoving,
+      currentPosition: status.currentPosition,
+      targetPosition: status.targetPosition,
+      speed: status.speed,
+      lastMoveTime: status.lastMoveTime,
+    };
+  }
+
+  // Métodos legados para compatibilidade
+
+  async executeMovement(dto: ExecuteMovementDto): Promise<MovementResultResponseDto> {
+    // Compatibilidade com versão anterior, agora redireciona para requestMovement
+    const result = await this.requestMovement(dto);
+    
+    // Converte para o formato de resposta legado
+    return {
+      id: result.eventId,
+      entityId: dto.entityId,
+      fromPosition: dto.fromPosition,
+      toPosition: dto.toPosition,
+      success: true,
+      message: 'Movimento solicitado com sucesso',
+      timestamp: new Date(),
     };
   }
 
   async getMovementsByEntity(entityId: string, limit?: number): Promise<MovementResponseDto[]> {
     const movements = await this.getMovementHistoryUseCase.getMovementsByEntity(entityId, limit);
-    return movements.map(movement => this.mapMovementToResponseDto(movement));
+    return movements.map(this.mapToMovementResponseDto);
   }
 
-  async getRecentMovements(entityId: string, minutes?: number): Promise<MovementResponseDto[]> {
-    const movements = await this.getMovementHistoryUseCase.getRecentMovements(entityId, minutes || 5);
-    return movements.map(movement => this.mapMovementToResponseDto(movement));
+  async getRecentMovements(entityId: string, minutes: number = 60): Promise<MovementResponseDto[]> {
+    const movements = await this.getMovementHistoryUseCase.getRecentMovements(entityId, minutes);
+    return movements.map(this.mapToMovementResponseDto);
   }
 
   async getMovementPath(entityId: string, limit?: number): Promise<MovementResponseDto[]> {
-    const movements = await this.getMovementHistoryUseCase.getMovementPath(entityId, limit || 10);
-    return movements.map(movement => this.mapMovementToResponseDto(movement));
+    const movements = await this.getMovementHistoryUseCase.getMovementPath(entityId, limit);
+    return movements.map(this.mapToMovementResponseDto);
   }
 
   async getLastMovement(entityId: string): Promise<MovementResponseDto | null> {
     const movement = await this.getMovementHistoryUseCase.getLastMovement(entityId);
-    return movement ? this.mapMovementToResponseDto(movement) : null;
+    return movement ? this.mapToMovementResponseDto(movement) : null;
   }
 
   async getEntityPositionInfo(entityId: string): Promise<EntityPositionInfoResponseDto> {
-    const lastMovement = await this.getMovementHistoryUseCase.getLastMovement(entityId);
+    // Tenta obter da nova tracking service primeiro
+    const trackingInfo = this.movingEntitiesTrackingService.getEntityState(entityId);
+    
+    if (trackingInfo) {
+      return {
+        entityId,
+        position: trackingInfo.currentPosition,
+        lastUpdated: trackingInfo.lastMoveTime,
+        isMoving: trackingInfo.isMoving,
+      };
+    }
+    
+    // Fallback para o método legado se não encontrar
+    const lastMovement = await this.getLastMovement(entityId);
     
     return {
       entityId,
-      lastPosition: lastMovement ? this.mapPositionToResponseDto(lastMovement.getToPosition()) : null,
-      lastMovementTime: lastMovement ? lastMovement.getTimestamp() : null,
-      isOnline: this.isEntityOnline(lastMovement),
+      position: lastMovement?.toPosition || { x: 0, y: 0, z: 0 },
+      lastUpdated: lastMovement?.timestamp || new Date(),
+      isMoving: false,
     };
-  }
-
-  async getEntityStatistics(entityId: string): Promise<MovementStatisticsResponseDto> {
-    const stats = await this.getMovementStatisticsUseCase.getEntityStatistics(entityId);
-    return this.mapStatisticsToResponseDto(stats);
   }
 
   async getMovementsToPosition(x: number, y: number, z: number): Promise<MovementResponseDto[]> {
     const movements = await this.getMovementHistoryUseCase.getMovementsToPosition(x, y, z);
-    return movements.map(movement => this.mapMovementToResponseDto(movement));
+    return movements.map(this.mapToMovementResponseDto);
   }
 
   async getMovementsFromPosition(x: number, y: number, z: number): Promise<MovementResponseDto[]> {
     const movements = await this.getMovementHistoryUseCase.getMovementsFromPosition(x, y, z);
-    return movements.map(movement => this.mapMovementToResponseDto(movement));
+    return movements.map(this.mapToMovementResponseDto);
   }
 
   async getMovementsInArea(startX: number, startY: number, endX: number, endY: number, z: number): Promise<MovementResponseDto[]> {
     const movements = await this.getMovementHistoryUseCase.getMovementsInArea(startX, startY, endX, endY, z);
-    return movements.map(movement => this.mapMovementToResponseDto(movement));
+    return movements.map(this.mapToMovementResponseDto);
   }
 
   async getEntitiesInRange(x: number, y: number, z: number, range: number): Promise<string[]> {
-    // Como não existe este método no use case, vou implementar uma lógica básica
-    const movements = await this.getMovementHistoryUseCase.getMovementsInArea(
-      x - range, 
-      y - range, 
-      x + range, 
-      y + range, 
-      z
-    );
+    // Primeiro verifica entidades em movimento ativo
+    const activeEntities = this.movingEntitiesTrackingService.getEntitiesInRange({ x, y, z }, range);
     
-    // Filtrar movimentos que estão exatamente dentro do range e extrair entidades únicas
-    const entitiesInRange = new Set<string>();
-    movements.forEach(movement => {
-      const toPos = movement.getToPosition();
-      const distance = Math.sqrt(
-        Math.pow(toPos.x - x, 2) + 
-        Math.pow(toPos.y - y, 2)
-      );
-      
-      if (distance <= range) {
-        entitiesInRange.add(movement.getEntityId());
-      }
-    });
+    // Depois busca no histórico de movimentos
+    const historicEntities = await this.getMovementHistoryUseCase.getEntitiesInRange(x, y, z, range);
     
-    return Array.from(entitiesInRange);
+    // Combina e remove duplicatas
+    const allEntities = [...activeEntities, ...historicEntities];
+    return [...new Set(allEntities)];
+  }
+
+  async getEntityStatistics(entityId: string): Promise<MovementStatisticsResponseDto> {
+    return await this.getMovementStatisticsUseCase.getEntityStatistics(entityId);
   }
 
   async getGlobalStatistics(timeRangeMinutes?: number): Promise<MovementStatisticsResponseDto> {
-    const stats = await this.getMovementStatisticsUseCase.getGlobalStatistics(timeRangeMinutes);
-    return this.mapStatisticsToResponseDto(stats);
+    return await this.getMovementStatisticsUseCase.getGlobalStatistics(timeRangeMinutes);
   }
 
   async getMovementById(id: string): Promise<MovementResponseDto> {
-    const movement = await this.getMovementHistoryUseCase.getMovementById(id);
+    const movement = await this.movementRepository.findById(id);
     if (!movement) {
-      throw new NotFoundException(`Movement with ID ${id} not found`);
+      throw new Error(`Movimento com ID ${id} não encontrado`);
     }
-    return this.mapMovementToResponseDto(movement);
+    return this.mapToMovementResponseDto(movement);
   }
 
   async deleteMovement(id: string): Promise<void> {
-    await this.deleteMovementUseCase.deleteById(id);
+    await this.deleteMovementUseCase.execute(id);
   }
 
   async deleteMovementsByEntity(entityId: string): Promise<number> {
-    return await this.deleteMovementUseCase.deleteMovementsByEntity(entityId);
+    return await this.deleteMovementUseCase.deleteByEntity(entityId);
   }
 
   async deleteOldMovements(days: number): Promise<number> {
-    return await this.deleteMovementUseCase.deleteOldMovements(days);
+    return await this.deleteMovementUseCase.deleteOlderThan(days);
   }
 
-  private mapMovementToResponseDto(movement: Movement): MovementResponseDto {
+  // Método auxiliar para mapear entidade para DTO de resposta
+  private mapToMovementResponseDto(movement: Movement): MovementResponseDto {
     return {
       id: movement.getId(),
       entityId: movement.getEntityId(),
-      fromPosition: this.mapPositionToResponseDto(movement.getFromPosition()),
-      toPosition: this.mapPositionToResponseDto(movement.getToPosition()),
-      direction: movement.getDirection(),
-      type: movement.getType(),
-      source: this.mapSourceToResponseDto(movement.getSource()),
-      timestamp: movement.getTimestamp(),
-      duration: movement.getDuration(),
-      staminaCost: movement.getStaminaCost(),
-      speed: movement.getSpeed(),
+      fromPosition: movement.getFromPosition(),
+      toPosition: movement.getToPosition(),
+      movementType: movement.getMovementType(),
       distance: movement.getDistance(),
+      timestamp: movement.getTimestamp(),
+      source: {
+        sourceId: movement.getSource()?.entityId || 'system',
+        sourceName: movement.getSource()?.entityName || 'System',
+        sourceType: movement.getSource()?.entityType || 'system',
+      },
     };
-  }
-
-  private mapPositionToResponseDto(position: Position): PositionResponseDto {
-    return {
-      x: position.x,
-      y: position.y,
-      z: position.z,
-    };
-  }
-
-  private mapPositionVOToPosition(positionVO: PositionVO): Position {
-    return {
-      x: positionVO.getX(),
-      y: positionVO.getY(),
-      z: positionVO.getZ(),
-    };
-  }
-
-  private mapSourceToResponseDto(source: MovementSource): MovementSourceResponseDto {
-    return {
-      sourceId: source.entityId,
-      sourceName: source.entityName,
-      sourceType: source.entityType,
-    };
-  }
-
-  private mapStatisticsToResponseDto(stats: any): MovementStatisticsResponseDto {
-    return {
-      totalMovements: stats.totalMovements || 0,
-      averageSpeed: stats.averageSpeed || 0,
-      totalDistance: stats.totalDistance || 0,
-      movementsByType: stats.movementsByType || {},
-      mostActiveHour: stats.mostActiveHour || 0,
-      averageMovementsPerDay: stats.averageMovementsPerDay || 0,
-      fastestMovement: stats.fastestMovement || 0,
-      slowestMovement: stats.slowestMovement || 0,
-    };
-  }
-
-  private isEntityOnline(lastMovement: Movement | null): boolean {
-    if (!lastMovement) return false;
-    
-    const lastMovementTime = lastMovement.getTimestamp();
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    
-    return lastMovementTime > fiveMinutesAgo;
   }
 }

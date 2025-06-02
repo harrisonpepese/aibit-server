@@ -1,0 +1,7 @@
+dist
+node_modules
+coverage
+.github
+.git
+.vscode
+*.md

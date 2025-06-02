@@ -1,5 +1,9 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Patch } from '@nestjs/common';
 import { GameMapService } from './gamemap.service';
+import { CreateMapDto } from './dto/create-map.dto';
+import { GetMapSectionDto } from './dto/get-map-section.dto';
+import { UpdateTileDto } from './dto/update-tile.dto';
+import { Position } from '../movement/domain/value-objects/position.vo';
 
 @Controller('gamemap')
 export class GameMapController {
@@ -16,7 +20,17 @@ export class GameMapController {
   }
 
   @Post()
-  createMap(@Body() createMapDto: any) {
+  createMap(@Body() createMapDto: CreateMapDto) {
     return this.gameMapService.create(createMapDto);
+  }
+
+  @Get('section')
+  getMapSection(@Query() getMapSectionDto: GetMapSectionDto) {
+    return this.gameMapService.getMapSection(getMapSectionDto);
+  }
+
+  @Patch('tile')
+  updateTile(@Body() updateTileDto: UpdateTileDto) {
+    return this.gameMapService.updateTile(updateTileDto);
   }
 }

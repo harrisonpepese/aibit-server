@@ -1,36 +1,73 @@
-# Aibit Server
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+</p>
 
-Aibit Server é um servidor de jogo online de mundo aberto, inspirado em jogos como Tibia. Este projeto utiliza o framework Nest.js para gerenciar a lógica do jogo, a movimentação de jogadores e criaturas, e as interações entre personagens.
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-## Estrutura do Projeto
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
+<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
+<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
+<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
+<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
+  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
+    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
+  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
+</p>
+  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
+  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-O projeto é organizado em módulos, cada um responsável por uma parte específica da lógica do jogo:
+## Description
 
-- **Account**: Gerencia as contas dos jogadores, incluindo autenticação e criação de contas.
-- **Character**: Representa os personagens dos jogadores, incluindo atributos, inventário e habilidades.
-- **GameServer**: Gerencia a lógica do jogo, incluindo o estado do mundo e interações entre personagens.
-- **GameMap**: Representa o mapa do jogo, incluindo tiles, criaturas, NPCs e objetos interativos.
-- **Damage**: Gerencia o sistema de dano, incluindo ataques, defesas e efeitos de status.
-- **Combat**: Lida com o combate entre personagens, incluindo ataques e habilidades especiais.
-- **Movement**: Gerencia a movimentação dos personagens no mapa.
-- **Creature**: Representa as criaturas do jogo, incluindo monstros e NPCs.
-- **Itens**: Gerencia os itens do jogo, incluindo armas, armaduras e consumíveis.
-- **Events**: Lida com eventos do jogo, como spawn de criaturas e mudanças no estado do mundo.
-- **Chat**: Gerencia o sistema de chat, permitindo comunicação entre jogadores e NPCs.
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Tecnologias Utilizadas
+## Installation
 
-- **Frameworks**: Nest.js, Websocket
-- **Bancos de Dados**: Redis (cache), MongoDB (persistência)
-- **Arquitetura**: Monolito modular, seguindo princípios de Clean Architecture, Clean Code, SOLID e DRY.
-- **Linguagem**: TypeScript orientado a objetos.
+```bash
+$ npm install
+```
 
-## Como Executar o Projeto
+## Running the app
 
-1. Clone o repositório.
-2. Instale as dependências com `npm install`.
-3. Inicie o servidor com `npm run start`.
+```bash
+# development
+$ npm run start
 
-## Contribuição
+# watch mode
+$ npm run start:dev
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
+# production mode
+$ npm run start:prod
+```
+
+## Test
+
+```bash
+# unit tests
+$ npm run test
+
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
+```
+
+## Support
+
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+
+## Stay in touch
+
+- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
+
+## License
+
+Nest is [MIT licensed](LICENSE).
