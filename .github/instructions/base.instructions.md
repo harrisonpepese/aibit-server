@@ -31,7 +31,76 @@ todos os eventos que acontecem nos sqs que o jogador ve deve ser enviado sem int
 # Modulos
 
 ## Account
-entidade responsavel por gerenciar as contas dos jogadores, incluindo autenticação, criação de contas e gerenciamento de personagens.
+Entidade responsável por gerenciar as contas dos jogadores, implementada seguindo Clean Architecture e DDD.
+
+### Estrutura do Módulo Account
+```
+account/
+├── domain/
+│   ├── entities/
+│   │   └── account.entity.ts          # Entidade de domínio Account
+│   ├── repositories/
+│   │   ├── account.repository.ts      # Interface do repositório
+│   │   └── account.repository.token.ts # Token de injeção de dependência
+│   └── value-objects/
+│       ├── email.vo.ts                # Value Object para email
+│       └── password.vo.ts             # Value Object para senha
+├── application/
+│   └── use-cases/
+│       ├── create-account.use-case.ts # Caso de uso: criar conta
+│       ├── login.use-case.ts          # Caso de uso: fazer login
+│       └── get-account.use-case.ts    # Caso de uso: buscar conta
+├── infrastructure/
+│   └── repositories/
+│       └── in-memory-account.repository.ts # Implementação em memória
+├── dto/
+│   ├── create-account.dto.ts          # DTO para criação de conta
+│   ├── login.dto.ts                   # DTO para login
+│   └── account-response.dto.ts        # DTO de resposta
+├── account.controller.ts              # Controller HTTP
+├── account.service.ts                 # Service do NestJS
+└── account.module.ts                  # Módulo do NestJS
+```
+
+### Responsabilidades Implementadas
+
+#### Domain Layer
+- **Account Entity**: Representa uma conta de jogador com validações de negócio
+  - Gerenciamento de personagens associados
+  - Controle de status da conta (ativa/inativa)
+  - Atualização de último login
+- **Email Value Object**: Validação e encapsulamento de emails
+- **Password Value Object**: Hash e verificação segura de senhas
+- **Repository Interface**: Contrato para persistência de dados
+
+#### Application Layer
+- **CreateAccountUseCase**: Criação de novas contas com validações
+- **LoginUseCase**: Autenticação de jogadores
+- **GetAccountUseCase**: Recuperação de dados da conta
+
+#### Infrastructure Layer
+- **InMemoryAccountRepository**: Implementação temporária para testes
+
+#### Presentation Layer
+- **AccountController**: Endpoints HTTP para:
+  - `POST /account/register` - Criar conta
+  - `POST /account/login` - Fazer login
+  - `GET /account/:id` - Buscar conta
+- **DTOs**: Validação de entrada e formatação de saída
+
+### Funcionalidades
+- ✅ Criação de contas com validação de email único
+- ✅ Autenticação segura com hash de senhas
+- ✅ Gerenciamento de personagens por conta
+- ✅ Controle de status da conta
+- ✅ Validação de dados de entrada
+- ✅ Tratamento de erros apropriado
+
+### Próximos Passos
+- [ ] Implementar repositório com MongoDB
+- [ ] Adicionar JWT para autenticação
+- [ ] Implementar middleware de autorização
+- [ ] Adicionar testes unitários e de integração
 
 ## Character
 entidade que representa o personagem do jogador no jogo, incluindo atributos, inventário e habilidades.
