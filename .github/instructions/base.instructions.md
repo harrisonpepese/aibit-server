@@ -106,7 +106,7 @@ account/
 entidade que representa o personagem do jogador no jogo, incluindo atributos, inventário e habilidades.
 
 ## GameServer
-entidade que gerencia a lógica do jogo, incluindo o estado do mundo, movimentação de jogadores e criaturas, e interações entre personagens.
+entidade que gerencia a lógica do jogo, incluindo o estado do mundo, movimentação de jogadores e criaturas, e interações entre personagens e atualiza os clientes das atualizações do mundo.
 
 ## GameMap
 entidade que representa o mapa do jogo, incluindo tiles, criaturas, NPCs e objetos interativos.
@@ -115,19 +115,19 @@ entidade que representa o mapa do jogo, incluindo tiles, criaturas, NPCs e objet
 entidade que gerencia o sistema de dano no jogo, incluindo ataques, defesas e efeitos de status.
 
 ## Combat
-entidade que lida com o combate entre personagens, incluindo ataques, defesas e habilidades especiais.
+Entidade que lida com os eventos de combate entre todos os personagens do jogo, incluindo jogadores e criaturas, e suas interações.
 
-## movement
-entidade que gerencia a movimentação dos personagens no mapa, incluindo movimentação por tiles e interações com objetos.
+## Movement
+Entidade que gerencia a movimentação dos personagens no mapa, incluindo movimentação por tiles e interações com objetos.
 
 ## Creature
-entidade que representa as criaturas do jogo, incluindo monstros e NPCs, com suas próprias habilidades e comportamentos.
+Entidade que representa as criaturas do jogo, incluindo monstros e NPCs, com suas próprias habilidades e comportamentos.
 
-## Itens
-entidade que gerencia os itens do jogo, incluindo armas, armaduras e consumíveis, e suas interações com os personagens.
+## Items
+Entidade que gerencia os itens do jogo, incluindo armas, armaduras e consumíveis, e suas interações com os personagens.
 
 ## Events
-entidade que lida com eventos do jogo, como spawn de criaturas, mudanças no estado do mundo e interações entre personagens.
+Entidade que lida com eventos do jogo, como spawn de criaturas, mudanças no estado do mundo e interações entre personagens.
 
 ## Chat
-entidade que gerencia o sistema de chat do jogo, permitindo comunicação entre jogadores e NPCs.
+Entidade que gerencia o sistema de chat do jogo por eventos, incluindo mensagens entre jogadores e canais de chat.
