@@ -5,13 +5,13 @@ import { ACCOUNT_REPOSITORY_TOKEN } from '../../domain/repositories/account.repo
 import { Account } from '../../domain/entities/account.entity';
 import { Password } from '../../domain/value-objects/password.vo';
 
-// Mock Password
+// Mock the Password class
 jest.mock('../../domain/value-objects/password.vo');
-const MockPassword = Password as jest.MockedClass<typeof Password>;
 
 describe('LoginUseCase', () => {
   let loginUseCase: LoginUseCase;
   let mockAccountRepository: jest.Mocked<AccountRepository>;
+  let mockPassword: jest.Mocked<Password>;
   
   beforeEach(async () => {
     // Create mock for AccountRepository
@@ -22,6 +22,15 @@ describe('LoginUseCase', () => {
       delete: jest.fn(),
       exists: jest.fn()
     };
+
+    // Create mock password instance
+    mockPassword = {
+      verify: jest.fn(),
+      getHash: jest.fn(),
+    } as any;
+
+    // Mock Password static method
+    (Password.fromHash as jest.Mock) = jest.fn().mockReturnValue(mockPassword);
 
     const moduleRef = await Test.createTestingModule({
       providers: [
@@ -34,10 +43,6 @@ describe('LoginUseCase', () => {
     }).compile();
 
     loginUseCase = moduleRef.get<LoginUseCase>(LoginUseCase);
-    
-    // Setup Password mock
-    MockPassword.fromHash.mockReturnValue(new Password('', true));
-    MockPassword.prototype.verify = jest.fn().mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -49,7 +54,6 @@ describe('LoginUseCase', () => {
     const email = 'test@example.com';
     const password = 'password123';
     
-    // Mock account
     const mockAccount = {
       email,
       passwordHash: 'hashed_password',
@@ -57,16 +61,16 @@ describe('LoginUseCase', () => {
       updateLastLogin: jest.fn()
     } as unknown as Account;
     
-    // Mock repository
     mockAccountRepository.findByEmail.mockResolvedValue(mockAccount);
+    mockPassword.verify.mockResolvedValue(true);
     
     // Act
     const result = await loginUseCase.execute(email, password);
     
     // Assert
     expect(mockAccountRepository.findByEmail).toHaveBeenCalledWith(email);
-    expect(MockPassword.fromHash).toHaveBeenCalledWith('hashed_password');
-    expect(MockPassword.prototype.verify).toHaveBeenCalledWith(password);
+    expect(Password.fromHash).toHaveBeenCalledWith('hashed_password');
+    expect(mockPassword.verify).toHaveBeenCalledWith(password);
     expect(mockAccount.updateLastLogin).toHaveBeenCalled();
     expect(mockAccountRepository.save).toHaveBeenCalledWith(mockAccount);
     expect(result).toBe(mockAccount);
@@ -77,7 +81,6 @@ describe('LoginUseCase', () => {
     const email = 'nonexistent@example.com';
     const password = 'password123';
     
-    // Mock repository
     mockAccountRepository.findByEmail.mockResolvedValue(null);
     
     // Act & Assert
@@ -86,7 +89,7 @@ describe('LoginUseCase', () => {
       .toThrow('Credenciais inválidas');
     
     expect(mockAccountRepository.findByEmail).toHaveBeenCalledWith(email);
-    expect(MockPassword.fromHash).not.toHaveBeenCalled();
+    expect(Password.fromHash).not.toHaveBeenCalled();
     expect(mockAccountRepository.save).not.toHaveBeenCalled();
   });
 
@@ -95,14 +98,12 @@ describe('LoginUseCase', () => {
     const email = 'inactive@example.com';
     const password = 'password123';
     
-    // Mock account
     const mockAccount = {
       email,
       passwordHash: 'hashed_password',
       isActive: false
     } as unknown as Account;
     
-    // Mock repository
     mockAccountRepository.findByEmail.mockResolvedValue(mockAccount);
     
     // Act & Assert
@@ -111,7 +112,7 @@ describe('LoginUseCase', () => {
       .toThrow('Conta inativa');
     
     expect(mockAccountRepository.findByEmail).toHaveBeenCalledWith(email);
-    expect(MockPassword.fromHash).not.toHaveBeenCalled();
+    expect(Password.fromHash).not.toHaveBeenCalled();
     expect(mockAccountRepository.save).not.toHaveBeenCalled();
   });
 
@@ -127,9 +128,10 @@ describe('LoginUseCase', () => {
       isActive: true
     } as unknown as Account;
     
-    // Mock repository and password verification
+    // Mock repository e password verification
     mockAccountRepository.findByEmail.mockResolvedValue(mockAccount);
-    MockPassword.prototype.verify = jest.fn().mockResolvedValue(false);
+    mockPassword.verify.mockResolvedValue(false);
+    (Password.fromHash as jest.Mock).mockReturnValue(mockPassword);
     
     // Act & Assert
     await expect(loginUseCase.execute(email, password))
@@ -137,8 +139,8 @@ describe('LoginUseCase', () => {
       .toThrow('Credenciais inválidas');
     
     expect(mockAccountRepository.findByEmail).toHaveBeenCalledWith(email);
-    expect(MockPassword.fromHash).toHaveBeenCalledWith('hashed_password');
-    expect(MockPassword.prototype.verify).toHaveBeenCalledWith(password);
+    expect(Password.fromHash).toHaveBeenCalledWith('hashed_password');
+    expect(mockPassword.verify).toHaveBeenCalledWith(password);
     expect(mockAccountRepository.save).not.toHaveBeenCalled();
   });
 });
