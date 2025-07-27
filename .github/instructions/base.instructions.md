@@ -111,11 +111,12 @@ entidade que gerencia a lógica do jogo, incluindo o estado do mundo, movimenta�
 ## GameMap
 entidade que representa o mapa do jogo, incluindo tiles, criaturas, NPCs e objetos interativos.
 
+## Combat
+Entidade que lida com os eventos de combate entre todos os personagens do jogo, incluindo jogadores e criaturas, e suas interações.
 ## Damage
 entidade que gerencia o sistema de dano no jogo, incluindo ataques, defesas e efeitos de status.
 
-## Combat
-Entidade que lida com os eventos de combate entre todos os personagens do jogo, incluindo jogadores e criaturas, e suas interações.
+
 
 ## Movement
 Entidade que gerencia a movimentação dos personagens no mapa, incluindo movimentação por tiles e interações com objetos.

@@ -9,11 +9,6 @@ export interface Player {
     position: Position;
 }
 
-export interface Position {
-    x: number;
-    y: number;
-}
-
 export interface Creature {
     id: string;
     name: string;

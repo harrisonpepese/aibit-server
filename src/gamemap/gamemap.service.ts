@@ -5,7 +5,7 @@ import { UpdateTileUseCase } from './application/use-cases/update-tile.use-case'
 import { CreateMapDto } from './dto/create-map.dto';
 import { GetMapSectionDto } from './dto/get-map-section.dto';
 import { UpdateTileDto } from './dto/update-tile.dto';
-import { Position } from '../movement/domain/value-objects/position.vo';
+import { Position } from 'src/@shared/domain/value-objects/Position.vo';
 import { GameMap } from './domain/entities/game-map.entity';
 
 @Injectable()
@@ -40,23 +40,20 @@ export class GameMapService {
   }
 
   async getMapSection(dto: GetMapSectionDto): Promise<GameMap | null> {
-    const position = new Position(dto.x, dto.y, dto.z);
+    const position = new Position(dto);
     return this.getMapSectionUseCase.execute(dto.mapId, position, dto.radius);
   }
 
   async updateTile(updateTileDto: UpdateTileDto): Promise<boolean> {
     const position = new Position(
-      updateTileDto.position.x,
-      updateTileDto.position.y,
-      updateTileDto.position.z,
+      updateTileDto.position
+    
     );
 
     let teleportDestination: Position | undefined;
     if (updateTileDto.teleportDestination) {
       teleportDestination = new Position(
-        updateTileDto.teleportDestination.x,
-        updateTileDto.teleportDestination.y,
-        updateTileDto.teleportDestination.z,
+        updateTileDto.teleportDestination
       );
     }
 

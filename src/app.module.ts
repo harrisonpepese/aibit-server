@@ -3,13 +3,10 @@ import { AccountModule } from './account/account.module';
 import { CharacterModule } from './character/character.module';
 import { GameServerModule } from './gameserver/gameserver.module';
 import { GameMapModule } from './gamemap/gamemap.module';
-import { DamageModule } from './damage/damage.module';
-import { CombatModule } from './combat/combat.module';
-import { MovementModule } from './movement/movement.module';
 import { CreatureModule } from './creature/creature.module';
-import { ItensModule } from './itens/itens.module';
 import { EventsModule } from './events/events.module';
 import { ChatModule } from './chat/chat.module';
+import { AttackModule } from './attack/attack.module';
 
 @Module({
   imports: [
@@ -17,13 +14,10 @@ import { ChatModule } from './chat/chat.module';
     CharacterModule,
     GameServerModule,
     GameMapModule,
-    DamageModule,
-    CombatModule,
-    MovementModule,
     CreatureModule,
-    ItensModule,
     EventsModule,
     ChatModule,
+    AttackModule,
   ],
 })
 export class AppModule {}

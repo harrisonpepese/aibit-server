@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCharacterUseCase } from './application/use-cases/create-character.use-case';
 import { GetCharacterUseCase } from './application/use-cases/get-character.use-case';
-import { UpdateCharacterUseCase } from './application/use-cases/update-character.use-case';
 import { DeleteCharacterUseCase } from './application/use-cases/delete-character.use-case';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import { UpdateCharacterStatsDto } from './dto/update-character-stats.dto';
@@ -14,7 +13,6 @@ export class CharacterService {
   constructor(
     private readonly createCharacterUseCase: CreateCharacterUseCase,
     private readonly getCharacterUseCase: GetCharacterUseCase,
-    private readonly updateCharacterUseCase: UpdateCharacterUseCase,
     private readonly deleteCharacterUseCase: DeleteCharacterUseCase,
   ) {}
 
@@ -46,27 +44,6 @@ export class CharacterService {
   async findOnlineCharacters(): Promise<CharacterResponseDto[]> {
     const characters = await this.getCharacterUseCase.onlineCharacters();
     return characters.map(character => new CharacterResponseDto(character));
-  }
-
-  async updateStats(id: string, updateStatsDto: UpdateCharacterStatsDto): Promise<CharacterResponseDto> {
-    const character = await this.updateCharacterUseCase.updateStats({
-      characterId: id,
-      ...updateStatsDto,
-    });
-    return new CharacterResponseDto(character);
-  }
-
-  async updatePosition(id: string, updatePositionDto: UpdateCharacterPositionDto): Promise<CharacterResponseDto> {
-    const character = await this.updateCharacterUseCase.updatePosition({
-      characterId: id,
-      ...updatePositionDto,
-    });
-    return new CharacterResponseDto(character);
-  }
-
-  async setOnlineStatus(id: string, isOnline: boolean): Promise<CharacterResponseDto> {
-    const character = await this.updateCharacterUseCase.setOnlineStatus(id, isOnline);
-    return new CharacterResponseDto(character);
   }
 
   async remove(id: string, accountId: string): Promise<void> {

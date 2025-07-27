@@ -173,15 +173,6 @@ export class Character {
     this.stats.mana = this.stats.maxMana;
   }
 
-  moveTo(position: CharacterPosition): void {
-    if (position.x < 0 || position.y < 0 || position.z < 0) {
-      throw new Error('Posição não pode ter coordenadas negativas');
-    }
-
-    this.position = { ...position };
-    this.updatedAt = new Date();
-  }
-
   setOnlineStatus(isOnline: boolean): void {
     this.isOnline = isOnline;
     this.updatedAt = new Date();

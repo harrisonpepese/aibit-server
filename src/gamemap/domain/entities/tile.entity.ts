@@ -1,4 +1,4 @@
-import { Position } from '../../../movement/domain/value-objects/position.vo';
+import { Position, PositionProps, } from "src/@shared/domain/value-objects/Position.vo";
 
 export enum TileType {
   GROUND = 'GROUND',
@@ -20,20 +20,20 @@ export class Tile {
   private readonly metadata: Record<string, any>; // Dados adicionais específicos para cada tipo
 
   constructor(
-    position: Position,
+    positionProps: PositionProps,
     type: TileType,
     walkable: boolean = true,
     friction: number = 1.0,
     damagePerTurn: number = 0,
-    teleportDestination?: Position,
+    teleportDestination?: PositionProps,
     metadata: Record<string, any> = {},
   ) {
-    this.position = position;
+    this.position = new Position(positionProps);
     this.type = type;
     this.walkable = walkable;
     this.friction = this.validateFriction(friction);
     this.damagePerTurn = Math.max(0, damagePerTurn);
-    this.teleportDestination = teleportDestination;
+    this.teleportDestination = teleportDestination? new Position(teleportDestination):undefined;
     this.metadata = metadata;
     
     this.validateTileConfiguration();
