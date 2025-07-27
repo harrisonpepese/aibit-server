@@ -1,5 +1,5 @@
+import { Position } from 'src/@shared/domain/value-objects/Position.vo';
 import { GameMap } from '../entities/game-map.entity';
-import { Position } from '../../../movement/domain/value-objects/position.vo';
 
 export interface GameMapRepository {
   findById(id: string): Promise<GameMap | null>;

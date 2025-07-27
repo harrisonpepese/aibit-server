@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CreatureRepository } from '../../domain/repositories/creature.repository';
 import { Creature } from '../../domain/entities/creature.entity';
-import { Position } from '../../domain/value-objects/position.vo';
+import { Position } from 'src/@shared/domain/value-objects/Position.vo';
+
 
 @Injectable()
 export class InMemoryCreatureRepository implements CreatureRepository {
@@ -50,7 +51,7 @@ export class InMemoryCreatureRepository implements CreatureRepository {
         }
         
         // Calcular distância e comparar com o raio
-        return creaturePos.distanceTo(position) <= radius;
+        return creaturePos.chebyshevDistance2D(position) <= radius;
       });
   }
 

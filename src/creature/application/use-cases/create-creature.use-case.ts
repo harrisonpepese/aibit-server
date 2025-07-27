@@ -4,8 +4,8 @@ import { CreatureRepository } from '../../domain/repositories/creature.repositor
 import { CREATURE_REPOSITORY } from '../../domain/repositories/creature.repository.token';
 import { CreatureType } from '../../domain/value-objects/creature-type.vo';
 import { CreatureStats } from '../../domain/value-objects/creature-stats.vo';
-import { Position } from '../../domain/value-objects/position.vo';
 import { CreateCreatureDto } from '../../dto/create-creature.dto';
+import { Position } from 'src/@shared/domain/value-objects/Position.vo';
 
 @Injectable()
 export class CreateCreatureUseCase {
@@ -23,9 +23,7 @@ export class CreateCreatureUseCase {
     );
 
     const position = new Position(
-      dto.position.x,
-      dto.position.y,
-      dto.position.z
+      dto.position
     );
 
     const stats = new CreatureStats(

@@ -3,7 +3,7 @@ import { GameMapService } from './gamemap.service';
 import { CreateMapDto } from './dto/create-map.dto';
 import { GetMapSectionDto } from './dto/get-map-section.dto';
 import { UpdateTileDto } from './dto/update-tile.dto';
-import { Position } from '../movement/domain/value-objects/position.vo';
+
 
 @Controller('gamemap')
 export class GameMapController {

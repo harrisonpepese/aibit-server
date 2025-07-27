@@ -1,3 +1,5 @@
+import { Position } from "src/@shared/domain/value-objects/Position.vo";
+
 // src/types/index.ts
 export interface Player {
     id: string;

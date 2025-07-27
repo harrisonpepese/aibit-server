@@ -2,9 +2,10 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Creature } from '../../domain/entities/creature.entity';
 import { CreatureRepository } from '../../domain/repositories/creature.repository';
 import { CREATURE_REPOSITORY } from '../../domain/repositories/creature.repository.token';
-import { Position } from '../../domain/value-objects/position.vo';
+
 import { CreatureStats } from '../../domain/value-objects/creature-stats.vo';
 import { UpdateCreaturePositionDto, UpdateCreatureStatsDto } from '../../dto/update-creature.dto';
+import { Position } from 'src/@shared/domain/value-objects/Position.vo';
 
 @Injectable()
 export class UpdateCreatureUseCase {
@@ -17,9 +18,7 @@ export class UpdateCreatureUseCase {
     const creature = await this.getCreatureById(id);
     
     const newPosition = new Position(
-      dto.position.x,
-      dto.position.y,
-      dto.position.z
+      dto.position
     );
     
     creature.updatePosition(newPosition);

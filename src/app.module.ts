@@ -6,7 +6,6 @@ import { GameMapModule } from './gamemap/gamemap.module';
 import { CreatureModule } from './creature/creature.module';
 import { EventsModule } from './events/events.module';
 import { ChatModule } from './chat/chat.module';
-import { AttackModule } from './attack/attack.module';
 
 @Module({
   imports: [
@@ -16,8 +15,7 @@ import { AttackModule } from './attack/attack.module';
     GameMapModule,
     CreatureModule,
     EventsModule,
-    ChatModule,
-    AttackModule,
+    ChatModule
   ],
 })
 export class AppModule {}

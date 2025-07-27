@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Position } from '../value-objects/position.vo';
 import { CreatureType } from '../value-objects/creature-type.vo';
 import { CreatureStats } from '../value-objects/creature-stats.vo';
 import { CreatureState } from '../value-objects/creature-state.vo';
+import { Position } from 'src/@shared/domain/value-objects/Position.vo';
 
 export class Creature {
   private readonly id: string;
@@ -111,7 +111,7 @@ export class Creature {
       data.id,
       data.name,
       CreatureType.fromPrimitives(data.type),
-      Position.fromPrimitives(data.position),
+      new Position(data.position),
       CreatureStats.fromPrimitives(data.stats),
       CreatureState.fromPrimitives(data.state),
       data.spawnId,
@@ -277,7 +277,7 @@ export class Creature {
       id: this.id,
       name: this.name,
       type: this.type.toPrimitives(),
-      position: this.position.toPrimitives(),
+      position: this.position.toJSON(),
       stats: this.stats.toPrimitives(),
       state: this.state.toPrimitives(),
       spawnId: this.spawnId,

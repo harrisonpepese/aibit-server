@@ -2,7 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { GameMapRepository } from '../../domain/repositories/game-map.repository';
 import { GAME_MAP_REPOSITORY } from '../../domain/repositories/game-map.repository.token';
 import { GameMap } from '../../domain/entities/game-map.entity';
-import { Position } from '../../../movement/domain/value-objects/position.vo';
+import { Position } from 'src/@shared/domain/value-objects/Position.vo';
+
 
 @Injectable()
 export class GetMapSectionUseCase {

@@ -1,5 +1,6 @@
+import { Position } from 'src/@shared/domain/value-objects/Position.vo';
 import { Creature } from '../entities/creature.entity';
-import { Position } from '../value-objects/position.vo';
+
 
 export interface CreatureRepository {
   save(creature: Creature): Promise<void>;

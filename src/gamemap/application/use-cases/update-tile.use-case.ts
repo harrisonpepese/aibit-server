@@ -2,7 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { GameMapRepository } from '../../domain/repositories/game-map.repository';
 import { GAME_MAP_REPOSITORY } from '../../domain/repositories/game-map.repository.token';
 import { Tile, TileType } from '../../domain/entities/tile.entity';
-import { Position } from '../../../movement/domain/value-objects/position.vo';
+import { Position } from 'src/@shared/domain/value-objects/Position.vo';
+
 
 @Injectable()
 export class UpdateTileUseCase {

@@ -1,4 +1,4 @@
-import { Position } from '../../../movement/domain/value-objects/position.vo';
+import { Position } from 'src/@shared/domain/value-objects/Position.vo';
 import { Tile, TileType } from './tile.entity';
 
 export class GameMap {
@@ -118,27 +118,26 @@ export class GameMap {
            position.getZ() < 0 || position.getZ() >= this.depth;
   }
 
-  getNeighborTiles(position: Position, includeDiagonal: boolean = true): Tile[] {
-    const neighbors = position.getNeighbors(includeDiagonal);
+  getNeighborTiles(position: Position): Tile[] {
+    const neighbors = position.getAllNeighbors();
     return neighbors
       .filter(pos => !this.isPositionOutOfBounds(pos))
       .map(pos => this.getTile(pos))
       .filter((tile): tile is Tile => tile !== undefined);
   }
 
-  // Retorna todos os tiles em um raio específico
+  // Retorna todos os tiles em um raio específico no mesmo nível (andar)
   getTilesInRadius(center: Position, radius: number): Tile[] {
     const tiles: Tile[] = [];
+    const centerZ = center.getZ();
     
-    for (let z = Math.max(0, center.getZ() - radius); z <= Math.min(this.depth - 1, center.getZ() + radius); z++) {
-      for (let y = Math.max(0, center.getY() - radius); y <= Math.min(this.height - 1, center.getY() + radius); y++) {
-        for (let x = Math.max(0, center.getX() - radius); x <= Math.min(this.width - 1, center.getX() + radius); x++) {
-          const pos = new Position(x, y, z);
-          const tile = this.getTile(pos);
-          
-          if (tile && center.manhattanDistanceTo(pos) <= radius) {
-            tiles.push(tile);
-          }
+    for (let y = Math.max(0, center.getY() - radius); y <= Math.min(this.height - 1, center.getY() + radius); y++) {
+      for (let x = Math.max(0, center.getX() - radius); x <= Math.min(this.width - 1, center.getX() + radius); x++) {
+        const pos = new Position({x, y, z: centerZ});
+        const tile = this.getTile(pos);
+        
+        if (tile && center.chebyshevDistance2D(pos) <= radius) {
+          tiles.push(tile);
         }
       }
     }
@@ -163,7 +162,7 @@ export class GameMap {
     
     for (let y = startY; y <= endY; y++) {
       for (let x = startX; x <= endX; x++) {
-        const position = new Position(x, y, z);
+        const position = new Position({x, y, z});
         
         if (!this.isPositionOutOfBounds(position)) {
           const tile = new Tile(position, tileType, walkable, friction, damagePerTurn);

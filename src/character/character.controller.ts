@@ -4,17 +4,13 @@ import {
   Post, 
   Body, 
   Param, 
-  Patch, 
   Delete, 
   Query,
   HttpCode,
   HttpStatus,
-  ParseBoolPipe,
 } from '@nestjs/common';
 import { CharacterService } from './character.service';
 import { CreateCharacterDto } from './dto/create-character.dto';
-import { UpdateCharacterStatsDto } from './dto/update-character-stats.dto';
-import { UpdateCharacterPositionDto } from './dto/update-character-position.dto';
 import { CharacterResponseDto } from './dto/character-response.dto';
 
 @Controller('characters')
@@ -49,30 +45,6 @@ export class CharacterController {
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<CharacterResponseDto> {
     return this.characterService.findOne(id);
-  }
-
-  @Patch(':id/stats')
-  async updateStats(
-    @Param('id') id: string,
-    @Body() updateStatsDto: UpdateCharacterStatsDto,
-  ): Promise<CharacterResponseDto> {
-    return this.characterService.updateStats(id, updateStatsDto);
-  }
-
-  @Patch(':id/position')
-  async updatePosition(
-    @Param('id') id: string,
-    @Body() updatePositionDto: UpdateCharacterPositionDto,
-  ): Promise<CharacterResponseDto> {
-    return this.characterService.updatePosition(id, updatePositionDto);
-  }
-
-  @Patch(':id/online-status')
-  async setOnlineStatus(
-    @Param('id') id: string,
-    @Query('isOnline', ParseBoolPipe) isOnline: boolean,
-  ): Promise<CharacterResponseDto> {
-    return this.characterService.setOnlineStatus(id, isOnline);
   }
 
   @Delete(':id')

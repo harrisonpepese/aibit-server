@@ -2,7 +2,8 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Creature } from '../../domain/entities/creature.entity';
 import { CreatureRepository } from '../../domain/repositories/creature.repository';
 import { CREATURE_REPOSITORY } from '../../domain/repositories/creature.repository.token';
-import { Position } from '../../domain/value-objects/position.vo';
+import { Position } from 'src/@shared/domain/value-objects/Position.vo';
+
 
 @Injectable()
 export class GetCreaturesUseCase {
@@ -30,12 +31,12 @@ export class GetCreaturesUseCase {
   }
 
   async getByPosition(x: number, y: number, z: number): Promise<Creature[]> {
-    const position = new Position(x, y, z);
+    const position = new Position({x, y, z});
     return this.creatureRepository.findByPosition(position);
   }
 
   async getInRadius(x: number, y: number, z: number, radius: number): Promise<Creature[]> {
-    const position = new Position(x, y, z);
+    const position = new Position({x, y, z});
     return this.creatureRepository.findInRadius(position, radius);
   }
 

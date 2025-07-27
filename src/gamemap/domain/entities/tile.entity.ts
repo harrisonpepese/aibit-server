@@ -20,20 +20,20 @@ export class Tile {
   private readonly metadata: Record<string, any>; // Dados adicionais específicos para cada tipo
 
   constructor(
-    positionProps: PositionProps,
+    position: Position,
     type: TileType,
     walkable: boolean = true,
     friction: number = 1.0,
     damagePerTurn: number = 0,
-    teleportDestination?: PositionProps,
+    teleportDestination?: Position,
     metadata: Record<string, any> = {},
   ) {
-    this.position = new Position(positionProps);
+    this.position = position;
     this.type = type;
     this.walkable = walkable;
     this.friction = this.validateFriction(friction);
     this.damagePerTurn = Math.max(0, damagePerTurn);
-    this.teleportDestination = teleportDestination? new Position(teleportDestination):undefined;
+    this.teleportDestination = teleportDestination;
     this.metadata = metadata;
     
     this.validateTileConfiguration();
